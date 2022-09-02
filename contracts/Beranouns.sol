@@ -28,13 +28,13 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable, Multicall {
 
     Counters.Counter internal _id;
     // although keccak256 produces a uint256, having sequential ids is better UX
-    mapping(uint256 => bytes32) public nouns; // 1 => keccak256(abi.encode(🐻), abi.encode(🐻))
-    mapping(bytes32 => uint256) public nounToId; // keccak256(abi.encode(🐻), abi.encode(🐻)) => 1
-    mapping(bytes32 => uint256) public expiry; // keccak256(abi.encode(🐻), abi.encode(🐻))  => 1662106509
-    mapping(bytes32 => address) public whois; // keccak256(abi.encode(🐻), abi.encode(🐻))  => 0x...
+    mapping(uint256 => bytes32) public nouns; // 1 => keccak256(abi.encode(🐻,🐻))
+    mapping(bytes32 => uint256) public nounToId; // keccak256(abi.encode(🐻,🐻)) => 1
+    mapping(bytes32 => uint256) public expiry; // keccak256(abi.encode(🐻,🐻))  => 1662106509
+    mapping(bytes32 => address) public whois; // keccak256(abi.encode(🐻,🐻))  => 0x...
     mapping(uint256 => string) public URI; // uri containing json metadata
     // pricing
-    mapping(bytes32 => uint256) public yearlyPrice; // keccak256(abi.encode(🐻), abi.encode(🐻)) => 660 * 1e18
+    mapping(bytes32 => uint256) public yearlyPrice; // keccak256(abi.encode(🐻,🐻)) => 660 * 1e18
     mapping(bytes32 => uint256) public componentYearlyPrice; // 🐻 => 330 * 1e18
     // CONFIG
     address public feesCollector;
