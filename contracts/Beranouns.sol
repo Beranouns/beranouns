@@ -22,16 +22,17 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable {
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using SafeERC20 for IERC20;
 
-    event SetAKA(uint256 id, address aka);
+    event SetWhois(uint256 id, address whois);
     event SetURI(uint256 id, string uri);
     event Extended(uint256 id, uint256 extension);
     event SetFeesCollector(address newCollector);
 
     Counters.Counter internal _id;
+    // although keccak256 produces a uint256, having sequential ids is better UX
     mapping(uint256 => bytes32) public nouns; // 1 => keccak256(abi.encode(🐻), abi.encode(🐻))
     mapping(bytes32 => uint256) public nounToId; // keccak256(abi.encode(🐻), abi.encode(🐻)) => 1
-    mapping(bytes32 => uint256) public expiry;
-    mapping(bytes32 => address) public aka;
+    mapping(bytes32 => uint256) public expiry; // keccak256(abi.encode(🐻), abi.encode(🐻))  => 1662106509
+    mapping(bytes32 => address) public whois; // keccak256(abi.encode(🐻), abi.encode(🐻))  => 0x...
     mapping(uint256 => string) public URI; // uri containing json metadata
     // pricing
     mapping(bytes32 => uint256) public yearlyPrice; // keccak256(abi.encode(🐻), abi.encode(🐻)) => 660 * 1e18
@@ -63,12 +64,12 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable {
     }
 
     /**
-     * @notice Set the AKA for the beranoun with  #`id`
+     * @notice Set the whois for the beranoun with  #`id`
      */
-    function setAKA(uint256 id, address aka_) external {
+    function setWhois(uint256 id, address whois_) external {
         require(ownerOf(id) == _msgSender(), "NOT_OWNER");
-        aka[nouns[id]] = aka_;
-        emit SetAKA(id, aka_);
+        whois[nouns[id]] = whois_;
+        emit SetWhois(id, whois_);
     }
 
     /**
@@ -91,18 +92,18 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable {
 
     /**
      * @notice Mint (`token0`/`token1`).bera
-     * @dev Requires approval of $HONEY
+     * @dev Requires approval of $HONEY.
      * @param token0 - first component of the noun
      * @param token1 - second component of the noun
      * @param duration - length of lease in years
-     * @param aka_ - alias to which the noun points to
+     * @param whois_ - alias to which the noun points to
      * @param to - the owner of the noun
      */
     function mint(
         string calldata token0,
         string calldata token1,
         uint256 duration,
-        address aka_,
+        address whois_,
         address to
     ) external whenNotPaused {
         require(duration > 0, "INVALID_LEASE_LENGTH");
@@ -129,7 +130,7 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable {
 
         _safeMint(to, currentId);
         nouns[currentId] = noun;
-        aka[noun] = aka_;
+        whois[noun] = whois_;
         expiry[noun] = block.timestamp + duration * 365 days;
 
         IERC20 paymentAsset = IERC20(address(1)); // TODO - set address of $HONEY
@@ -143,15 +144,16 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable {
     /**
      * @notice Buy the beranoun with id `id`
      * This function can only be called for nouns that already exist
+     * @dev This only allows the purchase of nouns owned by address(0)
      * @param id - the id of the noun to buy
      * @param duration - the length in years of the lease
-     * @param aka_ - the address the noun points to
+     * @param whois_ - the address the noun points to
      * @param to - the new owner of the noun
      */
     function buy(
         uint256 id,
         uint256 duration,
-        address aka_,
+        address whois_,
         address to
     ) external whenNotPaused {
         IERC20 paymentAsset = IERC20(address(1)); // TODO - set address of $HONEY
@@ -162,9 +164,9 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable {
             yearlyPrice[noun] * duration
         );
 
-        _safeMint(to, id); // already checks if owner is address(0)
+        _safeMint(to, id); // checks if owner is address(0)
         expiry[noun] = block.timestamp + (duration * 365 days);
-        aka[noun] = aka_;
+        whois[noun] = whois_;
     }
 
     /**
