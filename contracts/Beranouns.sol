@@ -8,7 +8,7 @@ import {IERC721, ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
-import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {Multicall} from "@openzeppelin/contracts/utils/Multicall.sol";
 
 /**
  * @title Beranouns (🐻/🐻).bera
@@ -17,9 +17,8 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
  * The contract is minimalistic by design and its logic is limited to what is strictly necessary for storing data and integrating with other contracts.
  * Any action that can be delegated off-chain is not included.
  */
-contract Beranouns is Ownable, Pausable, ERC721Enumerable {
+contract Beranouns is Ownable, Pausable, ERC721Enumerable, Multicall {
     using Counters for Counters.Counter;
-    using EnumerableSet for EnumerableSet.Bytes32Set;
     using SafeERC20 for IERC20;
 
     event SetWhois(uint256 id, address whois);
@@ -37,7 +36,6 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable {
     // pricing
     mapping(bytes32 => uint256) public yearlyPrice; // keccak256(abi.encode(🐻), abi.encode(🐻)) => 660 * 1e18
     mapping(bytes32 => uint256) public componentYearlyPrice; // 🐻 => 330 * 1e18
-
     // CONFIG
     address public feesCollector;
 
