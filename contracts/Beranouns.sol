@@ -10,6 +10,7 @@ import {IERC20, SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeE
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 import {Multicall} from "@openzeppelin/contracts/utils/Multicall.sol";
 
+import "hardhat/console.sol";
 /**
  * @title Beranouns (🐻/🐻).bera
  * @author Beranouns Inc.
@@ -62,7 +63,7 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable, Multicall {
     }
 
     /**
-     * @notice Set the whois for the beranoun with  #`id`
+     * @notice Set the whois for the beranoun #`id`
      */
     function setWhois(uint256 id, address whois_) external {
         require(ownerOf(id) == _msgSender(), "NOT_OWNER");
@@ -104,6 +105,7 @@ contract Beranouns is Ownable, Pausable, ERC721Enumerable, Multicall {
         address whois_,
         address to
     ) external whenNotPaused {
+        console.log("%s / %s", token0, token1);
         require(duration > 0, "INVALID_LEASE_LENGTH");
 
         bytes32 t0 = keccak256(abi.encode(token0));
